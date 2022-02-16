@@ -1,0 +1,42 @@
+version: "3.6"
+services:
+    db:
+        container_name: bountie-db
+        restart: always
+        image: postgres:12.7-alpine
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_DB=bountie-db
+            - POSTGRES_USER=bountie
+            - POSTGRES_PASSWORD=bountie123
+        volumes:
+            - backup_data:/var/lib/postgresql/data
+
+    api:
+        build: .
+        command: bash -c "alembic upgrade head && uvicorn main:app --reload --host 0.0.0.0"
+        container_name: bountie-api-v2
+        ports:
+            - "8080:8080"
+        volumes:
+            - ".:/app"
+        depends_on:
+            - localhost
+
+    minio:
+        image: minio/minio
+        command: [ "server", "--console-address", ":9001", "/data" ]
+        restart: always
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        environment:
+            MINIO_ROOT_USER: bountieminio
+            MINIO_ROOT_PASSWORD: kiasu123
+        volumes:
+            - "minio_data:/data"
+
+volumes:
+    backup_data:
+    minio_data:

@@ -1,0 +1,6 @@
+*.vscode
+*__pycache__/
+db-backup/
+*.DS_Store
+.env
+*.git
